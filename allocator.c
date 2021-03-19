@@ -8,6 +8,7 @@
 #include "arena.h"
 #include "driver.h"
 #include <stddef.h>
+#include "Utils/align_utils.h"
 
 #define ALIGNMENT _Alignof(max_align_t)
 #define MAX_SIZE get_page_size()
@@ -18,11 +19,7 @@ void *mem_alloc(size_t size) {
     if (!first_arena)
         first_arena = create_arena(MAX_SIZE, NULL);
 
-    size_t rem = size % ALIGNMENT;
-    if (rem != 0)
-        size += ALIGNMENT - rem;
-
-    //size += HEADER_SIZE;
+    size = align(size, ALIGNMENT);
 
     struct Arena *arena = first_arena;
     struct Header *header;
@@ -56,10 +53,8 @@ void *mem_alloc(size_t size) {
             arena = arena->next;
         } else {
             if (size + sizeof(struct Header) > MAX_SIZE) {
-                size_t rem1 = size + sizeof(struct Header) % MAX_SIZE;
-                size_t size_to_alloc = size + sizeof(struct Header);
-                if (rem1 != 0)
-                    size_to_alloc += MAX_SIZE - rem;
+                size_t size_to_alloc = align(align(sizeof(struct Header), ALIGNMENT) +
+                                             align(size, ALIGNMENT), MAX_SIZE);
                 arena->next = create_arena(size_to_alloc, arena);
             } else {
                 arena->next = create_arena(MAX_SIZE, arena);
@@ -98,14 +93,17 @@ void *mem_realloc(void *ptr, size_t new_size) {
     if (!ptr)
         return mem_alloc(new_size);
 
-    struct Header *old_header = (struct Header *) ptr - 1;
+    //struct Header *old_header = (struct Header *) ptr - 1;
+    struct Header *old_header = get_header_from_body(ptr);
 
-    if (get_size(old_header) >= new_size) {
+
+    if (get_size(old_header) > new_size) {
         split_header(ptr, new_size);
         return ptr;
     }
 
-    if (!get_next(old_header)) {
+    if (!get_next(old_header) &&
+        get_arena_from_header(old_header)->free_space > new_size - get_size(old_header)) {
         change_size(old_header, new_size);
         return ptr;
     }
