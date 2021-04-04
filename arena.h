@@ -8,16 +8,17 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "header.h"
+#include "macros.h"
 
 struct Arena {
-    bool started;
+    //bool started;
     size_t size;
-    struct Arena *next;
-    struct Arena *prev;
-    size_t free_space;
+    //struct Arena *next;
+    //struct Arena *prev;
+    //size_t free_space;
 };
 
-struct Arena *create_arena(size_t size, struct Arena *prev);
+struct Arena *create_arena(size_t size, struct Tree *tree);
 
 void delete_arena(struct Arena *arena);
 

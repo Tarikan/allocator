@@ -6,6 +6,7 @@
 #define LAB1_ALIGN_UTILS_H
 
 #include <stddef.h>
+#include "../macros.h"
 
 size_t align(size_t size, size_t alignment);
 

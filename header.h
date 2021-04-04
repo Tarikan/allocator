@@ -8,7 +8,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "tree.h"
+#include "rbtree/rbtree.h"
+#include "macros.h"
 
 struct Header {
     size_t size;
@@ -29,17 +30,17 @@ struct Header *get_next(struct Header *header);
 
 bool get_status(struct Header *header);
 
-void merge_right(struct Header *header);
+struct Header *merge_right(struct Header *header, struct Tree* tree);
 
-void merge_left(struct Header *header);
+struct Header *merge_left(struct Header *header, struct Tree* tree);
 
-void create_header(size_t size, struct Header *prev, void *ptr);
+void create_header(size_t size, struct Header *prev, void *ptr, struct Tree *tree);
 
-void split_header(struct Header *header, size_t new_size);
+void split_header(struct Header *header, size_t new_size, struct Tree* tree);
 
-void mark_free(struct Header *header);
+void mark_free(struct Header *header, struct Tree *tree);
 
-void mark_reserved(struct Header *header);
+void mark_reserved(struct Header *header, struct Tree *tree);
 
 struct Header *get_next_addr(struct Header *header);
 
@@ -48,7 +49,5 @@ void change_size(struct Header *header, size_t new_size);
 void change_next(struct Header *header, struct Header *next);
 
 void change_prev(struct Header *header, struct Header *prev);
-
-
 
 #endif //LAB1_HEADER_H

@@ -1,49 +1,48 @@
-/*    Copyright (C) David M. Rogers, 2014
- *
- *    David M. Rogers <predictivestatmech@gmail.com>
- *    Nonequilibrium Stat. Mech. Research Group
- *    Department of Chemistry
- *    University of South Florida
- *
- *    This file is part of rbtree.
- *
- *    rbtree is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
- *
- *    rbtree is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
- *
- *    You should have received a copy of the GNU General Public License
- *    along with rbtree.  If not, see <http://www.gnu.org/licenses/>.
- */
+#ifndef __RBTREE_H__
+#define __RBTREE_H__
 
-/* The cmp function operates between nodes (void *N)-s.
- * These must store L, R (void *)-s at N + coff.
- * The black (0) / red (1) bit is used at
- * the masked bit of N+boff.
- */
+#define RED 1
+#define BLACK 2
 
-#ifndef LAB1_RBTREE_H
-#define LAB1_RBTREE_H
+#include <stdint.h>
 
-typedef struct {
-    int (*cmp)(const void *, const void *);
-    unsigned int coff, boff;
-    unsigned char mask; // contains a one where red/black bit is set.
-    void *nil;
-} rbop_t;
+struct Node {
+    uint8_t color;
 
-void new_tree(void *N, const rbop_t *o);
-void *add_node(void **N, void *A, const rbop_t *o);
-void *del_node(void **N, const void *A, const rbop_t *o);
-void *lookup_node(void *N, const void *A, const rbop_t *o);
+    struct Node *parent;
+    struct Node *left;
+    struct Node *right;
+    struct Node *next;
+    struct Node *prev;
+    int value;
+};
 
-// returns mask or 0
-unsigned char get_mask(const void *N, const rbop_t *o);
+static struct Node NODENIL = {
+        .color = BLACK,
+        .parent = &NODENIL,
+        .left = &NODENIL,
+        .right = &NODENIL,
+        .prev = NULL,
+        .next = NULL,
+        .value = 0,
+};
 
+struct Tree {
+    struct Node *root;
+};
 
-#endif //LAB1_RBTREE_H
+struct Node *init_node(void *node_place, size_t value);
+
+void insert_item(struct Tree *tree, struct Node *z);
+
+void remove_item(struct Tree *tree, struct Node *node);
+
+struct Node *search_suitable(struct Tree *tree, size_t value);
+
+struct Node *search(struct Tree *tree, size_t value);
+
+void print_tree(struct Tree *tree);
+
+void print_node(struct Node *node);
+
+#endif
