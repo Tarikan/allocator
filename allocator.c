@@ -1,7 +1,3 @@
-//
-// Created by Tarikan on 08.03.2021.
-//
-
 #include <string.h>
 #include <stdio.h>
 #include "allocator.h"
@@ -33,10 +29,7 @@ void *mem_alloc(size_t size) {
         if (!arena) {
             return NULL;
         }
-        //printf("Create new arena with size %ld\n", arena->size);
         header = get_first_header(arena);
-        //node = search_suitable(&tree_head, size);
-        //header = HEADER_FROM_NODE(node);
     }
 
     if (header && get_size(header) == size) {
@@ -47,7 +40,6 @@ void *mem_alloc(size_t size) {
     if (header && get_size(header) > size) {
         split_header(header, size, &tree_head);
 
-        //remove_item(&tree_head, get_body_ptr(header));
         mark_reserved(header, &tree_head);
         return get_body_ptr(header);
     }
@@ -106,6 +98,7 @@ void *mem_realloc(void *ptr, size_t new_size) {
     return get_body_ptr(new_header);
 }
 
+/// deprecated
 void mem_dump() {
     //char* addr = (char*)get_first_header(first_arena);
     printf("Page size: %d\n", MAX_SIZE);
@@ -132,13 +125,13 @@ void mem_dump() {
 
         printf("%15s%15s%8s%15s\n", "ADDR", "FREE", "SIZE", "NEXT_ADDR");
         while (addr != NULL) {
-            printf((((struct Header *) addr)->next != NULL ? "%15p%15s%8ld%15p\n" : "%15p%15s%8ld%15s\n"),
-                   addr, ((struct Header *) addr)->free ? "true" : "false", ((struct Header *) addr)->size,
-                   (((struct Header *) addr)->next != NULL ? (char *) (((struct Header *) addr)->next)
-                                                           : "END OF MEMORY"));
-            total = total + ((struct Header *) addr)->size;
-            total_total += ((struct Header *) addr)->size;
-            addr = (char *) ((struct Header *) addr)->next;
+            printf((get_next(((struct Header *) addr)) != NULL ? "%15p%15s%8ld%15p\n" : "%15p%15s%8ld%15s\n"),
+                   addr, get_status(((struct Header *) addr)) ? "true" : "false", get_size(((struct Header *) addr)),
+                   (get_next(((struct Header *) addr)) != NULL ? (char *) (get_next(((struct Header *) addr)))
+                                                               : "END OF MEMORY"));
+            total = total + get_size(((struct Header *) addr));
+            total_total += get_size(((struct Header *) addr));
+            addr = (char *) get_next(((struct Header *) addr));
             total_count++;
             total_total_count++;
         }
@@ -146,19 +139,12 @@ void mem_dump() {
         printf("Total blocks allocated/used: %d\nMemory used by headers: %ld B\nMemory reserved for usage: %ld B\n",
                total_count,
                total_count * sizeof(struct Header), total);
-
-        //arena = arena->next;
-        //arena = NULL;
     }
 
     if (arena_num > 1) {
         printf("\nTotal arenas allocated: %d\nTotal memory used by headers: %ld B\nTotal memory reserved for usage: %d B\n",
                arena_num, total_total_count * sizeof(struct Header), total_total);
     }
-
-    //if (!arena_num) {
-    //    printf("Total arenas allocated: 0");
-    //}
 
     printf("\n");
     print_tree(&tree_head);

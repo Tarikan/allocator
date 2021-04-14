@@ -1,7 +1,3 @@
-//
-// Created by Tarikan on 09.03.2021.
-//
-
 #include "header.h"
 #include "Utils/align_utils.h"
 #include "macros.h"
@@ -22,11 +18,11 @@ struct Header *get_next(struct Header *header) {
     return header->next;
 }
 
-void change_next(struct Header *header, struct Header *next) {
+void set_next(struct Header *header, struct Header *next) {
     header->next = next;
 }
 
-void change_prev(struct Header *header, struct Header *prev) {
+void set_prev(struct Header *header, struct Header *prev) {
     header->prev = prev;
 }
 
@@ -47,7 +43,7 @@ size_t get_size(struct Header *header) {
     return header->size;
 }
 
-void change_size(struct Header *header, size_t new_size) {
+void set_size(struct Header *header, size_t new_size) {
     header->size = new_size;
 }
 
@@ -56,7 +52,7 @@ void change_size(struct Header *header, size_t new_size) {
 #pragma region merge_functions
 
 struct Header *merge_right(struct Header *header, struct Tree *tree) {
-    if (header->next && header->next->free) {
+    if (get_next(header) && get_status(get_next(header))) {
         if (get_size(header) >= NODE_SIZE) {
             remove_item(tree, (struct Node *) get_body_ptr(header));
         }
@@ -64,17 +60,17 @@ struct Header *merge_right(struct Header *header, struct Tree *tree) {
             remove_item(tree, (struct Node *) get_body_ptr(get_next(header)));
         }
         //header->size += header->next->size + align(sizeof(struct Header), ALIGNMENT);
-        change_size(header, get_size(header) +
-                            get_size(get_next(header)) +
-                            align(sizeof(struct Header), ALIGNMENT));
+        set_size(header, get_size(header) +
+                         get_size(get_next(header)) +
+                         align(sizeof(struct Header), ALIGNMENT));
         //header->next = header->next->next;
-        change_next(header, get_next(get_next(header)));
+        set_next(header, get_next(get_next(header)));
 
         if (get_next(header)) {
-            change_prev(get_next(header), header);
+            set_prev(get_next(header), header);
         }
         if (get_prev(header)) {
-            change_next(get_prev(header), header);
+            set_next(get_prev(header), header);
         }
 
         if (get_size(header) >= NODE_SIZE) {
@@ -92,24 +88,6 @@ struct Header *merge_left(struct Header *header, struct Tree *tree) {
 
     return header;
 }
-
-/*
-struct Header *merge_left(struct Header *header, struct Tree* tree) {
-    if (get_prev(header) && get_status(get_prev(header))) {
-        remove_item(tree, (struct Node*)get_body_ptr(header));
-        header = get_prev(header);
-        remove_item(tree, (struct Node*)get_body_ptr(header));
-        header->size += header->next->size + align(sizeof(struct Header), ALIGNMENT);
-        header->next = header->next->next;
-        if (get_next(header))
-            get_next(header)->prev = header;
-
-        insert_item(tree, init_node(get_body_ptr(header), get_size(header)));
-    }
-
-    return header;
-}
-*/
 
 #pragma endregion merge_functions
 
@@ -138,8 +116,8 @@ bool get_status(struct Header *header) {
 #pragma region creation_functions
 
 void create_header(size_t size, struct Header *prev, void *ptr, struct Tree *tree) {
-    change_prev((struct Header *) ptr, prev);
-    change_size((struct Header *) ptr, size);
+    set_prev((struct Header *) ptr, prev);
+    set_size((struct Header *) ptr, size);
     mark_free((struct Header *) ptr, tree);
 }
 
@@ -160,7 +138,7 @@ void split_header(struct Header *header, size_t new_size, struct Tree *tree) {
 
     size_t old_size = get_size(header);
 
-    change_size(header, new_size);
+    set_size(header, new_size);
 
     if (get_status(header)) { mark_free(header, tree); }
 
@@ -171,13 +149,13 @@ void split_header(struct Header *header, size_t new_size, struct Tree *tree) {
     struct Header *new_header =
             get_next_addr(header);
 
-    change_size(new_header, old_size - new_size - HEADER_SIZE);
-    change_prev(new_header, header);
-    change_next(new_header, get_next(header));
+    set_size(new_header, old_size - new_size - HEADER_SIZE);
+    set_prev(new_header, header);
+    set_next(new_header, get_next(header));
     if (get_next(new_header)) {
-        change_prev(get_next(new_header), new_header);
+        set_prev(get_next(new_header), new_header);
     }
-    change_next(header, new_header);
+    set_next(header, new_header);
 
     //if (get_size(new_header) >= NODE_SIZE) {
     //    insert_item(tree, init_node(get_body_ptr(new_header), get_size(new_header)));

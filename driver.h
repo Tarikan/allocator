@@ -1,7 +1,3 @@
-//
-// Created by Tarikan on 08.03.2021.
-//
-
 #ifndef LAB1_DRIVER_H
 #define LAB1_DRIVER_H
 

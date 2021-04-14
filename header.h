@@ -1,7 +1,3 @@
-//
-// Created by Tarikan on 08.03.2021.
-//
-
 #ifndef LAB1_HEADER_H
 #define LAB1_HEADER_H
 
@@ -44,10 +40,10 @@ void mark_reserved(struct Header *header, struct Tree *tree);
 
 struct Header *get_next_addr(struct Header *header);
 
-void change_size(struct Header *header, size_t new_size);
+void set_size(struct Header *header, size_t new_size);
 
-void change_next(struct Header *header, struct Header *next);
+void set_next(struct Header *header, struct Header *next);
 
-void change_prev(struct Header *header, struct Header *prev);
+void set_prev(struct Header *header, struct Header *prev);
 
 #endif //LAB1_HEADER_H
