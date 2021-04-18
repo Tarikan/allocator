@@ -13,7 +13,17 @@ static struct Tree tree_head = {.root = NULL};
 
 void *mem_alloc(size_t size) {
 
-    size = align(size, ALIGNMENT);
+    int aligned_size = align(size, ALIGNMENT);
+
+    if (size > aligned_size) {
+        return NULL;
+    }
+
+    size = aligned_size;
+
+    if (size < NODE_SIZE) {
+        size = NODE_SIZE;
+    }
 
     struct Arena *arena;
     struct Header *header;
@@ -38,6 +48,7 @@ void *mem_alloc(size_t size) {
     }
 
     if (header && get_size(header) > size) {
+        size_t test = get_size(header);
         split_header(header, size, &tree_head);
 
         mark_reserved(header, &tree_head);
@@ -54,7 +65,7 @@ void mem_free(void *ptr) {
     }
 
     struct Header *header = get_header_from_body(ptr);
-    struct Arena *arena = get_arena_from_header(header);
+    struct Arena *arena;
 
     mark_free(header, &tree_head);
 
@@ -65,13 +76,21 @@ void mem_free(void *ptr) {
     if (!get_next(header) &&
         !get_prev(header)) {
         mark_reserved(header, &tree_head);
+        arena = get_arena_from_header(header);
         //printf("Delete arena with size %ld\n", arena->size);
         delete_arena(arena);
     }
 }
 
 void *mem_realloc(void *ptr, size_t new_size) {
-    new_size = align(new_size, ALIGNMENT);
+    int new_size_aligned = align(new_size, ALIGNMENT);
+
+    if (new_size > new_size_aligned) {
+        return NULL;
+    }
+
+    new_size = new_size_aligned;
+
     if (!ptr) {
         return mem_alloc(new_size);
     }
@@ -79,8 +98,8 @@ void *mem_realloc(void *ptr, size_t new_size) {
     struct Header *old_header = get_header_from_body(ptr);
 
     if (new_size == 0) {
-        mem_free(ptr);
-        return mem_alloc(0);
+        //mem_free(ptr);
+        return NULL;
     }
 
     if (get_size(old_header) > new_size) {

@@ -10,8 +10,9 @@
 struct Header {
     size_t size;
     struct Header *prev;
-    struct Header *next;
-    bool free;
+    //struct Header *next;
+    bool free : 1;
+    bool has_next : 1;
 };
 
 void *get_body_ptr(struct Header *header);

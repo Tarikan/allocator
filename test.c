@@ -37,7 +37,7 @@ void test(size_t max_size, int N) {
         struct OperationResult result;
         void *ptr;
         if (i % N / 100 == 0) {
-            printf("%ld%\r", i);
+            printf("%u%%\r", i);
             fflush (stdout);
         }
 
@@ -52,27 +52,18 @@ void test(size_t max_size, int N) {
                             .checksum = get_checksum(ptr, size),
                     };
                     mem_free(results[rand_index].addr);
+                    assert(get_checksum(result.addr, result.size) == result.checksum && "bad checksum");
                     results[rand_index] = result;
                 }
                 break;
             case 1:
                 result = results[rand_index];
                 if (result.addr) { // Якщо був алоцирований
-                    if (get_checksum(result.addr, result.size) != result.checksum) {
-                        printf("Current: %ld\nExprected: %ld", get_checksum(result.addr, result.size), result.checksum);
-                    }
                     assert(get_checksum(result.addr, result.size) == result.checksum && "bad checksum");
                 }
                 unsigned int controll = get_checksum(result.addr, min(size, result.size));
                 void *ptr1 = mem_realloc(result.addr, size);
                 if (ptr1) {
-                    if (get_checksum(ptr1, min(size, result.size)) != controll) {
-                        printf("Current: %ld\nExprected: %ld\nNew size: %ld\nOld Size: %ld\n",
-                               get_checksum(ptr1, min(size, result.size)),
-                               controll,
-                               size,
-                               result.size);
-                    }
                     assert(get_checksum(ptr1, min(size, result.size)) == controll && "bad checksum");
                     random_addr(ptr1, size);
                     results[rand_index] = (struct OperationResult) {
@@ -85,11 +76,6 @@ void test(size_t max_size, int N) {
             case 2:
                 result = results[rand_index];
                 if (result.addr) { // Якщо був алоцирований
-                    if (get_checksum(result.addr, result.size) != result.checksum) {
-                        printf("Current: %ld\nExprected: %ld",
-                               get_checksum(result.addr, result.size),
-                               result.checksum);
-                    }
                     assert(get_checksum(result.addr, result.size) == result.checksum && "bad checksum");
                 }
                 mem_free(result.addr);

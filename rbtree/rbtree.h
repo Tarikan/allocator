@@ -14,7 +14,7 @@ struct Node {
     struct Node *right;
     struct Node *next;
     struct Node *prev;
-    int value;
+    size_t value;
 };
 
 static struct Node NODENIL = {

@@ -15,11 +15,23 @@ struct Header *get_header_from_body(void *body) {
 }
 
 struct Header *get_next(struct Header *header) {
-    return header->next;
+    //return header->next;
+    if (header == NULL) {return NULL;}
+    if (header->has_next) {
+        struct Header *test = get_next_addr(header);
+        return get_next_addr(header);
+    }
+    return NULL;
+    //return header->next;
 }
 
 void set_next(struct Header *header, struct Header *next) {
-    header->next = next;
+    //header->next = next;
+    if (next != NULL) {
+        header->has_next = true;
+    } else {
+        header->has_next = false;
+    }
 }
 
 void set_prev(struct Header *header, struct Header *prev) {
@@ -31,7 +43,6 @@ struct Header *get_prev(struct Header *header) {
 }
 
 struct Header *get_next_addr(struct Header *header) {
-    //return (struct Header *) ((char *) header + sizeof(struct Header) + header->size);
     return (struct Header *) ((char *) get_body_ptr(header) + get_size(header));
 }
 
@@ -59,12 +70,12 @@ struct Header *merge_right(struct Header *header, struct Tree *tree) {
         if (get_size(get_next(header)) >= NODE_SIZE) {
             remove_item(tree, (struct Node *) get_body_ptr(get_next(header)));
         }
-        //header->size += header->next->size + align(sizeof(struct Header), ALIGNMENT);
+        struct Header *old_next = get_next(header);
         set_size(header, get_size(header) +
                          get_size(get_next(header)) +
                          align(sizeof(struct Header), ALIGNMENT));
-        //header->next = header->next->next;
-        set_next(header, get_next(get_next(header)));
+        //struct Header *test = get_next(header);
+        if (old_next) { set_next(header, get_next(old_next)); }
 
         if (get_next(header)) {
             set_prev(get_next(header), header);
@@ -119,15 +130,20 @@ void create_header(size_t size, struct Header *prev, void *ptr, struct Tree *tre
     set_prev((struct Header *) ptr, prev);
     set_size((struct Header *) ptr, size);
     mark_free((struct Header *) ptr, tree);
+    set_next((struct Header *) ptr, NULL);
+    struct Header *header = (struct Header *)ptr;
 }
 
 void split_header(struct Header *header, size_t new_size, struct Tree *tree) {
+    if (get_size(header) <= new_size) {
+        return;
+    }
     new_size = align(new_size, ALIGNMENT);
     if (get_size(header) <= new_size) {
         return;
     }
 
-    if (get_size(header) - new_size <= HEADER_SIZE) {
+    if (get_size(header) - new_size < HEADER_SIZE + NODE_SIZE) {
         return;
     }
 
@@ -137,6 +153,8 @@ void split_header(struct Header *header, size_t new_size, struct Tree *tree) {
     }
 
     size_t old_size = get_size(header);
+
+    struct Header *old_next = get_next(header);
 
     set_size(header, new_size);
 
@@ -151,7 +169,7 @@ void split_header(struct Header *header, size_t new_size, struct Tree *tree) {
 
     set_size(new_header, old_size - new_size - HEADER_SIZE);
     set_prev(new_header, header);
-    set_next(new_header, get_next(header));
+    set_next(new_header, old_next);
     if (get_next(new_header)) {
         set_prev(get_next(new_header), new_header);
     }

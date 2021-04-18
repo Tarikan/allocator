@@ -7,7 +7,13 @@ struct Arena *create_arena(size_t size, struct Tree *tree) {
         size = 1;
     }
 
-    size = align(size + ARENA_SIZE, get_page_size());
+    int aligned_size = align(size + ARENA_SIZE, get_page_size());
+
+    if (size > aligned_size) {
+        return NULL;
+    }
+
+    size = aligned_size;
 
     struct Arena *ptr = kernel_alloc(size);
 

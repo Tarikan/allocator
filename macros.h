@@ -1,7 +1,3 @@
-//
-// Created by Tarikan on 01.04.2021.
-//
-
 #ifndef LAB1_MACROS_H
 #define LAB1_MACROS_H
 
