@@ -2,6 +2,8 @@
 #define LAB1_DRIVER_H
 
 #include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 void *kernel_alloc(size_t size);
 

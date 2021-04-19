@@ -2,6 +2,7 @@
 #include "memoryapi.h"
 #include <windows.h>
 
+
 static DWORD page_size;
 
 void *kernel_alloc(size_t size) {
@@ -10,7 +11,11 @@ void *kernel_alloc(size_t size) {
 }
 
 void kernel_free(void *ptr) {
-    VirtualFree(ptr, 0, MEM_RELEASE);
+    WINBOOL result = VirtualFree(ptr, 0, MEM_RELEASE);
+    if (!result) {
+        printf("VirtualAlloc exited with error, aborting");
+        abort();
+    }
 }
 
 size_t get_page_size() {

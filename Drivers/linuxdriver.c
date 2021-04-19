@@ -21,7 +21,11 @@ void *kernel_alloc(size_t size) {
 }
 
 void kernel_free(void *ptr) {
-    munmap(ptr, ((struct Arena *) ptr)->size);
+    int result = munmap(ptr, ((struct Arena *) ptr)->size);
+    if (result != 0) {
+        printf("Munmap exited with error %d, aborting", result);
+        abort();
+    }
 }
 
 size_t get_page_size() {
