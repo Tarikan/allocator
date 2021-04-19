@@ -7,7 +7,7 @@
 #include "../arena.h"
 #include <unistd.h>
 
-static int page_size;
+static size_t page_size;
 
 void *kernel_alloc(size_t size) {
     if (!page_size)
@@ -24,7 +24,7 @@ void kernel_free(void *ptr) {
     munmap(ptr, ((struct Arena *) ptr)->size);
 }
 
-int get_page_size() {
+size_t get_page_size() {
     if (!page_size)
         page_size = getpagesize();
     return page_size;

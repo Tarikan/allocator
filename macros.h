@@ -8,5 +8,6 @@
 #define HEADER_SIZE align(sizeof(struct Header), ALIGNMENT)
 #define HEADER_FROM_NODE(node) (struct Header *)((char *)node - HEADER_SIZE)
 #define NODE_FROM_HEADER(header) (struct Node *)(get_body_ptr(header))
+#define DEFAULT_ARENA_PAGES 16
 
 #endif //LAB1_MACROS_H

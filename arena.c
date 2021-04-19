@@ -3,11 +3,12 @@
 #include "Utils/align_utils.h"
 
 struct Arena *create_arena(size_t size, struct Tree *tree) {
+    struct Arena *ptr;
     if (size == 0) {
         size = 1;
     }
 
-    int aligned_size = align(size + ARENA_SIZE, get_page_size());
+    size_t aligned_size = align(size + ARENA_SIZE + HEADER_SIZE, get_page_size());
 
     if (size > aligned_size) {
         return NULL;
@@ -15,7 +16,11 @@ struct Arena *create_arena(size_t size, struct Tree *tree) {
 
     size = aligned_size;
 
-    struct Arena *ptr = kernel_alloc(size);
+    if (size > DEFAULT_ARENA_PAGES * get_page_size()) {
+        ptr = kernel_alloc(size);
+    } else {
+        ptr = kernel_alloc(DEFAULT_ARENA_PAGES * get_page_size());
+    }
 
     if (!ptr) {
         return NULL;
@@ -43,11 +48,4 @@ struct Arena *get_arena_from_header(struct Header *header) {
     }
 
     return (struct Arena *) ((char *) header - ARENA_SIZE);
-}
-
-struct Header *get_last_header(struct Arena *arena) {
-    struct Header *header = get_first_header(arena);
-    while (get_next(header))
-        header = get_next(header);
-    return header;
 }

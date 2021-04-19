@@ -5,15 +5,13 @@
 #include "driver.h"
 #include <stddef.h>
 #include "Utils/align_utils.h"
-#include "rbtree/rbtree.h"
-#include "macros.h"
 
 
 static struct Tree tree_head = {.root = NULL};
 
 void *mem_alloc(size_t size) {
 
-    int aligned_size = align(size, ALIGNMENT);
+    size_t aligned_size = align(size, ALIGNMENT);
 
     if (size > aligned_size) {
         return NULL;
@@ -48,7 +46,6 @@ void *mem_alloc(size_t size) {
     }
 
     if (header && get_size(header) > size) {
-        size_t test = get_size(header);
         split_header(header, size, &tree_head);
 
         mark_reserved(header, &tree_head);
@@ -83,7 +80,7 @@ void mem_free(void *ptr) {
 }
 
 void *mem_realloc(void *ptr, size_t new_size) {
-    int new_size_aligned = align(new_size, ALIGNMENT);
+    size_t new_size_aligned = align(new_size, ALIGNMENT);
 
     if (new_size > new_size_aligned) {
         return NULL;

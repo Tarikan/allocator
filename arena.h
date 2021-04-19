@@ -16,8 +16,6 @@ void delete_arena(struct Arena *arena);
 
 struct Header *get_first_header(struct Arena *arena);
 
-struct Header *get_last_header(struct Arena *arena);
-
 struct Arena *get_arena_from_header(struct Header *header);
 
 #endif //LAB1_ARENA_H

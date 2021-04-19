@@ -1,28 +1,22 @@
 #include "header.h"
 #include "Utils/align_utils.h"
-#include "macros.h"
 
 #pragma region ptr_functions
 
 void *get_body_ptr(struct Header *header) {
-    //return header + 1;
     return (char *) header + HEADER_SIZE;
 }
 
 struct Header *get_header_from_body(void *body) {
-    //return (struct Header *) body - 1;
     return (struct Header *) ((char *) body - HEADER_SIZE);
 }
 
 struct Header *get_next(struct Header *header) {
-    //return header->next;
     if (header == NULL) {return NULL;}
     if (header->has_next) {
-        struct Header *test = get_next_addr(header);
         return get_next_addr(header);
     }
     return NULL;
-    //return header->next;
 }
 
 void set_next(struct Header *header, struct Header *next) {
@@ -131,7 +125,6 @@ void create_header(size_t size, struct Header *prev, void *ptr, struct Tree *tre
     set_size((struct Header *) ptr, size);
     mark_free((struct Header *) ptr, tree);
     set_next((struct Header *) ptr, NULL);
-    struct Header *header = (struct Header *)ptr;
 }
 
 void split_header(struct Header *header, size_t new_size, struct Tree *tree) {

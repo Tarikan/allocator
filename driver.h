@@ -7,6 +7,6 @@ void *kernel_alloc(size_t size);
 
 void kernel_free(void *ptr);
 
-int get_page_size();
+size_t get_page_size();
 
 #endif //LAB1_DRIVER_H
