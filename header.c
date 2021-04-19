@@ -113,7 +113,7 @@ void mark_free(struct Header *header, struct Tree *tree) {
 
 void mark_reserved(struct Header *header, struct Tree *tree) {
     if (get_size(header) >= NODE_SIZE) {
-        remove_item(tree, get_body_ptr(header));
+        remove_item(tree, NODE_FROM_HEADER(header));
     }
     header->free = false;
 }
@@ -160,10 +160,6 @@ void split_header(struct Header *header, size_t new_size, struct Tree *tree) {
 
     if (get_status(header)) { mark_free(header, tree); }
 
-    //if (new_size >= NODE_SIZE) {
-    //    insert_item(tree, init_node(get_body_ptr(header), new_size));
-    //}
-
     struct Header *new_header =
             get_next_addr(header);
 
@@ -174,10 +170,6 @@ void split_header(struct Header *header, size_t new_size, struct Tree *tree) {
         set_prev(get_next(new_header), new_header);
     }
     set_next(header, new_header);
-
-    //if (get_size(new_header) >= NODE_SIZE) {
-    //    insert_item(tree, init_node(get_body_ptr(new_header), get_size(new_header)));
-    //}
 
     mark_free(new_header, tree);
 }

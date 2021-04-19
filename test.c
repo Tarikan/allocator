@@ -99,5 +99,5 @@ void test(size_t max_size, int N) {
         mem_free(results[i].addr);
     }
 
-    printf("Test with maximum size %ld finished successfully\n", max_size);
+    printf("Test with maximum size %zu finished successfully\n", max_size);
 }

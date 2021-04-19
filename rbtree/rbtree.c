@@ -13,7 +13,8 @@ bool is_rbnil(struct Node *node) {
     return node == &NODENIL;
 }
 
-struct Node *init_node(void *node_place, size_t value) {\
+struct Node *init_node(void *node_place, size_t value) {
+    \
     *(struct Node *) node_place = (struct Node) {
             .color = BLACK,
             .left = &NODENIL,
@@ -317,15 +318,14 @@ struct Node *search_suitable(struct Tree *tree, size_t value) {
     struct Node *z = tree->root;
     struct Node *res = NULL;
 
-    while (!is_rbnil(z))
-    {
-        if (z->value == value)
+    while (!is_rbnil(z)) {
+        if (z->value == value) {
             return z;
+        }
 
-        if (z->value < value)
+        if (z->value < value) {
             z = z->right;
-        else
-        {
+        } else {
             res = z;
             z = z->left;
         }
