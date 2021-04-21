@@ -10,6 +10,9 @@
 static struct Tree tree_head = {.root = NULL};
 
 void *mem_alloc(size_t size) {
+    if (size == 0) {
+        return NULL;
+    }
 
     size_t aligned_size = align(size, ALIGNMENT);
 
@@ -40,20 +43,17 @@ void *mem_alloc(size_t size) {
         header = get_first_header(arena);
     }
 
-    if (header && get_size(header) == size) {
+    if (get_size(header) == size) {
         mark_reserved(header, &tree_head);
         return get_body_ptr(header);
     }
 
-    if (header && get_size(header) > size) {
+    if (get_size(header) > size) {
         split_header(header, size, &tree_head);
 
         mark_reserved(header, &tree_head);
         return get_body_ptr(header);
     }
-
-    mark_reserved(header, &tree_head);
-    return get_body_ptr(header);
 }
 
 void mem_free(void *ptr) {
@@ -80,6 +80,11 @@ void mem_free(void *ptr) {
 }
 
 void *mem_realloc(void *ptr, size_t new_size) {
+    if (new_size == 0) {
+        //mem_free(ptr);
+        return NULL;
+    }
+
     size_t new_size_aligned = align(new_size, ALIGNMENT);
 
     if (new_size > new_size_aligned) {
@@ -94,17 +99,18 @@ void *mem_realloc(void *ptr, size_t new_size) {
 
     struct Header *old_header = get_header_from_body(ptr);
 
-    if (new_size == 0) {
-        //mem_free(ptr);
-        return NULL;
-    }
-
+    // якщо новий розмір < старий розмір, то розбиваємо блок на 2
     if (get_size(old_header) > new_size) {
         split_header(old_header, new_size, &tree_head);
         return ptr;
     }
 
-    struct Header *new_header = get_header_from_body(mem_alloc(new_size));
+    ptr = mem_alloc(new_size);
+    if (!ptr) {
+        return NULL;
+    }
+
+    struct Header *new_header = get_header_from_body(ptr);
     memcpy(get_body_ptr(new_header),
            get_body_ptr(old_header),
            get_size(old_header) > new_size ? new_size : get_size(old_header));

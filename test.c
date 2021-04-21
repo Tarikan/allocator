@@ -51,8 +51,8 @@ void test(size_t max_size, int N) {
                             .size = size,
                             .checksum = get_checksum(ptr, size),
                     };
-                    mem_free(results[rand_index].addr);
                     assert(get_checksum(result.addr, result.size) == result.checksum && "bad checksum");
+                    mem_free(results[rand_index].addr);
                     results[rand_index] = result;
                 }
                 break;
