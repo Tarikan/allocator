@@ -58,8 +58,9 @@ void set_size(struct Header *header, size_t new_size) {
 
 struct Header *merge_right(struct Header *header, struct Tree *tree) {
     if (get_next(header) && get_status(get_next(header))) {
-        if (get_size(header) >= NODE_SIZE) {
-            remove_item(tree, (struct Node *) get_body_ptr(header));
+        if (get_size(header) >= NODE_SIZE &&
+                get_status(header)) {
+            remove_item(tree, NODE_FROM_HEADER(header));
         }
         if (get_size(get_next(header)) >= NODE_SIZE) {
             remove_item(tree, (struct Node *) get_body_ptr(get_next(header)));
@@ -78,13 +79,15 @@ struct Header *merge_right(struct Header *header, struct Tree *tree) {
             set_next(get_prev(header), header);
         }
 
-        if (get_size(header) >= NODE_SIZE) {
+        if (get_size(header) >= NODE_SIZE &&
+            get_status(header)) {
             insert_item(tree, init_node(get_body_ptr(header), get_size(header)));
         }
     }
 
     return header;
 }
+
 
 struct Header *merge_left(struct Header *header, struct Tree *tree) {
     if (get_prev(header) && get_status(get_prev(header))) {

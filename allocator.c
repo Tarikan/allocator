@@ -105,6 +105,14 @@ void *mem_realloc(void *ptr, size_t new_size) {
         return ptr;
     }
 
+    // if next block is free and has big enough size to merge
+    if (get_next(old_header) &&
+        get_status(get_next(old_header)) &&
+        get_size(get_next(old_header)) + HEADER_SIZE + get_size(old_header) >= new_size) {
+        merge_right(old_header, &tree_head);
+        return get_body_ptr(old_header);
+    }
+
     ptr = mem_alloc(new_size);
     if (!ptr) {
         return NULL;
