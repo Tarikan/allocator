@@ -32,7 +32,7 @@ void test(size_t max_size, int N) {
         // 1 - REALLOC
         // 2 - FREE
         unsigned short action = rand() % 3;
-        size_t size = rand() % max_size;
+        size_t size = rand() % max_size + 1;
         unsigned int rand_index = rand() % ARRAY_SIZE;
         struct OperationResult result;
         void *ptr;

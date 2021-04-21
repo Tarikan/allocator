@@ -5,5 +5,6 @@ int main() {
     test(32, N);
     test(512, N);
     test(RAND_MAX, N);
+    mem_dump();
     return 0;
 }

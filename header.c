@@ -12,7 +12,7 @@ struct Header *get_header_from_body(void *body) {
 }
 
 struct Header *get_next(struct Header *header) {
-    if (header == NULL) {return NULL;}
+    if (header == NULL) { return NULL; }
     if (header->has_next) {
         return get_next_addr(header);
     }
@@ -59,7 +59,7 @@ void set_size(struct Header *header, size_t new_size) {
 struct Header *merge_right(struct Header *header, struct Tree *tree) {
     if (get_next(header) && get_status(get_next(header))) {
         if (get_size(header) >= NODE_SIZE &&
-                get_status(header)) {
+            get_status(header)) {
             remove_item(tree, NODE_FROM_HEADER(header));
         }
         if (get_size(get_next(header)) >= NODE_SIZE) {
@@ -134,7 +134,9 @@ void split_header(struct Header *header, size_t new_size, struct Tree *tree) {
     if (get_size(header) <= new_size) {
         return;
     }
+
     new_size = align(new_size, ALIGNMENT);
+
     if (get_size(header) <= new_size) {
         return;
     }
@@ -143,8 +145,7 @@ void split_header(struct Header *header, size_t new_size, struct Tree *tree) {
         return;
     }
 
-    if (get_status(header) &&
-        get_size(header) >= NODE_SIZE) {
+    if (get_status(header)) {
         remove_item(tree, get_body_ptr(header));
     }
 

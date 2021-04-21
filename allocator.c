@@ -99,9 +99,10 @@ void *mem_realloc(void *ptr, size_t new_size) {
 
     struct Header *old_header = get_header_from_body(ptr);
 
-    // якщо новий розмір < старий розмір, то розбиваємо блок на 2
+    // if new_size < old_size -> split block
     if (get_size(old_header) > new_size) {
         split_header(old_header, new_size, &tree_head);
+        merge_right(get_next(old_header), &tree_head);
         return ptr;
     }
 
@@ -130,52 +131,6 @@ void *mem_realloc(void *ptr, size_t new_size) {
 
 /// deprecated
 void mem_dump() {
-    //char* addr = (char*)get_first_header(first_arena);
     printf("Page size: %d\n", MAX_SIZE);
-    char *addr;
-    int arena_num = 0;
-
-    size_t total = 0;
-    int total_count = 0;
-
-    int total_total = 0;
-    int total_total_count = 0;
-
-    struct Arena *arena = NULL;
-
-    while (arena) {
-
-        total = 0;
-        total_count = 0;
-
-
-        addr = (char *) get_first_header(arena);
-
-        printf("Arena №%d\nUsed space: %ld/%ld\n", ++arena_num, -1, arena->size);
-
-        printf("%15s%15s%8s%15s\n", "ADDR", "FREE", "SIZE", "NEXT_ADDR");
-        while (addr != NULL) {
-            printf((get_next(((struct Header *) addr)) != NULL ? "%15p%15s%8ld%15p\n" : "%15p%15s%8ld%15s\n"),
-                   addr, get_status(((struct Header *) addr)) ? "true" : "false", get_size(((struct Header *) addr)),
-                   (get_next(((struct Header *) addr)) != NULL ? (char *) (get_next(((struct Header *) addr)))
-                                                               : "END OF MEMORY"));
-            total = total + get_size(((struct Header *) addr));
-            total_total += get_size(((struct Header *) addr));
-            addr = (char *) get_next(((struct Header *) addr));
-            total_count++;
-            total_total_count++;
-        }
-        printf("Results:\n");
-        printf("Total blocks allocated/used: %d\nMemory used by headers: %ld B\nMemory reserved for usage: %ld B\n",
-               total_count,
-               total_count * sizeof(struct Header), total);
-    }
-
-    if (arena_num > 1) {
-        printf("\nTotal arenas allocated: %d\nTotal memory used by headers: %ld B\nTotal memory reserved for usage: %d B\n",
-               arena_num, total_total_count * sizeof(struct Header), total_total);
-    }
-
-    printf("\n");
     print_tree(&tree_head);
 }
